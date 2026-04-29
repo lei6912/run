@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5421 Enjoy組 團結日#03 熱量大罷工</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --orange: #F5A623;
+    --orange-light: #FFF3DC;
+    --orange-dark: #D4841A;
+    --green: #7BC67E;
+    --green-light: #E8F5E9;
+    --green-dark: #4CAF50;
+    --cream: #FAFAF3;
+    --card-bg: #FFFFFF;
+    --border: #E8E2D0;
+    --text: #2C2A20;
+    --text-muted: #888070;
+    --red: #E24B4A;
+    --red-light: #FCEBEB;
+    --success: #3B6D11;
+    --success-light: #EAF3DE;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Helvetica Neue', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #F5A623 0%, #F0C060 50%, #7BC67E 100%);
+    padding: 20px 16px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+  }
+
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; left: -10px;
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.25);
+    border: 1px solid rgba(255,255,255,0.5);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .header h1 {
+    font-size: 20px;
+    font-weight: 800;
+    color: white;
+    line-height: 1.3;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    margin-bottom: 4px;
+  }
+
+  .header-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+  }
+
+  .star-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 12px;
+    color: white;
+    margin-top: 8px;
+  }
+
+  .main { padding: 16px; max-width: 600px; margin: 0 auto; }
+
+  /* Stats Bar */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .stat-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    padding: 12px 10px;
+    text-align: center;
+  }
+
+  .stat-card .val {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--orange-dark);
+    line-height: 1;
+  }
+
+  .stat-card .lbl {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 3px;
+    line-height: 1.3;
+  }
+
+  /* Progress */
+  .progress-section {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .progress-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .progress-num {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--orange-dark);
+  }
+
+  .progress-bar {
+    height: 12px;
+    background: var(--orange-light);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--orange), var(--orange-dark));
+    border-radius: 20px;
+    transition: width 0.5s ease;
+    min-width: 0;
+  }
+
+  .progress-fill.complete {
+    background: linear-gradient(90deg, var(--green), var(--green-dark));
+  }
+
+  .target-note {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    text-align: center;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px 8px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  .tab.active {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: white;
+  }
+
+  .tab .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.7;
+  }
+
+  /* Form Cards */
+  .form-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+
+  .form-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .form-row {
+    margin-bottom: 12px;
+  }
+
+  .form-row label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-row select,
+  .form-row input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    font-size: 14px;
+    color: var(--text);
+    background: var(--cream);
+    font-family: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+  }
+
+  .form-row select:focus,
+  .form-row input:focus {
+    border-color: var(--orange);
+    background: white;
+  }
+
+  .select-wrap {
+    position: relative;
+  }
+
+  .select-wrap::after {
+    content: '▾';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+    font-size: 12px;
+  }
+
+  .rule-box {
+    background: var(--orange-light);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 12px;
+    color: #7A5010;
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+
+  .rule-box strong {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .btn-primary {
+    background: var(--orange);
+    color: white;
+  }
+
+  .btn-primary:hover { background: var(--orange-dark); }
+
+  .btn-secondary {
+    background: var(--green-light);
+    color: var(--success);
+    border: 1.5px solid var(--green);
+  }
+
+  .btn-secondary:hover { background: #d0ebcf; }
+
+  .btn-export {
+    background: var(--text);
+    color: white;
+    margin-top: 10px;
+  }
+
+  /* Members List */
+  .members-section {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+
+  .section-header {
+    padding: 12px 16px;
+    background: var(--orange-light);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .section-header h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #7A5010;
+  }
+
+  .section-header span {
+    font-size: 12px;
+    color: #9A7020;
+    font-weight: 600;
+  }
+
+  .member-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+    transition: background 0.15s;
+  }
+
+  .member-row:last-child { border-bottom: none; }
+  .member-row:hover { background: var(--cream); }
+
+  .member-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--orange-light);
+    color: var(--orange-dark);
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .member-avatar.registered { background: var(--success-light); color: var(--success); }
+  .member-avatar.reported { background: var(--orange-light); color: var(--orange-dark); }
+
+  .member-info { flex: 1; min-width: 0; }
+
+  .member-name {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .member-detail {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .member-kcal {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--orange-dark);
+    flex-shrink: 0;
+  }
+
+  .status-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+
+  .badge-registered { background: var(--success-light); color: var(--success); }
+  .badge-reported { background: var(--orange-light); color: var(--orange-dark); }
+  .badge-done { background: #E8F5E9; color: #2E7D32; }
+
+  .edit-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-family: inherit;
+    flex-shrink: 0;
+  }
+
+  .edit-btn:hover {
+    border-color: var(--orange);
+    color: var(--orange-dark);
+  }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 20px 20px 0 0;
+    padding: 20px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .modal-handle {
+    width: 40px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 auto 16px;
+  }
+
+  .modal h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 20px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--text);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 200;
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+  }
+
+  .toast.show { opacity: 1; }
+
+  .empty-state {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .empty-state .icon { font-size: 32px; margin-bottom: 8px; }
+
+  .kcal-preview {
+    background: var(--orange-light);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    margin-bottom: 12px;
+  }
+
+  .kcal-preview span { font-size: 12px; color: #7A5010; font-weight: 600; }
+  .kcal-preview strong { font-size: 18px; color: var(--orange-dark); font-weight: 800; }
+
+  @media (max-width: 420px) {
+    .header h1 { font-size: 17px; }
+    .stat-card .val { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">5421 Enjoy組 · 第16屆</div>
+  <h1>🔥 團結日 #03<br>熱量大罷工</h1>
+  <div class="header-sub">5/1（五）勞動節 · 全組目標 5000 大卡</div>
+  <div class="star-badge">⭐ 完成獲得小組 3 積分　｜　難易度 ★★★</div>
+</div>
+
+<div class="main">
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="val" id="stat-reg">0</div>
+      <div class="lbl">已報名<br>人數</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" id="stat-rep">0</div>
+      <div class="lbl">已回報<br>人數</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" id="stat-kcal">0</div>
+      <div class="lbl">累計<br>大卡</div>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-section">
+    <div class="progress-header">
+      <span class="progress-title">🏃 熱量大作戰進度</span>
+      <span class="progress-num" id="progress-text">0 / 5000 kcal</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+    </div>
+    <div class="target-note" id="progress-note">目標 5000 大卡 · 計算規則：5K=350卡，每多1K加70卡</div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" id="tab-reg" onclick="switchTab('register')">
+      <span class="dot"></span> 報名
+    </div>
+    <div class="tab" id="tab-rep" onclick="switchTab('report')">
+      <span class="dot"></span> 回報里程
+    </div>
+    <div class="tab" id="tab-list" onclick="switchTab('list')">
+      <span class="dot"></span> 統計總覽
+    </div>
+  </div>
+
+  <!-- Register Panel -->
+  <div id="panel-register">
+    <div class="form-card">
+      <h3>📋 報名參加</h3>
+      <div class="rule-box">
+        <strong>📌 活動規則</strong>
+        基本門檻 5K，全組累計卡路里須超過 5000 大卡。<br>
+        5K = 350卡，每多跑 1K 加計 70 大卡。<br>
+        里程以進位規則計算：小數點後 > 0.11 自動進位。
+      </div>
+      <div class="form-row">
+        <label>選擇成員</label>
+        <div class="select-wrap">
+          <select id="reg-member">
+            <option value="">— 請選擇成員 —</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>預計里程（KM）<span style="color:var(--text-muted);font-weight:400;text-transform:none;font-size:11px"> 僅供參考，不強制限制</span></label>
+        <input type="number" id="reg-km" placeholder="例如：10.5" step="0.01" min="1">
+      </div>
+      <button class="btn btn-primary" onclick="handleRegister()">✅ 確認報名</button>
+    </div>
+  </div>
+
+  <!-- Report Panel -->
+  <div id="panel-report" style="display:none">
+    <div class="form-card">
+      <h3>🏁 回報實際里程</h3>
+      <div class="rule-box">
+        <strong>📌 回報規則</strong>
+        請輸入實際完成里程，系統自動換算卡路里。<br>
+        最少 5K 才列入熱量計算。里程強制限制小數點後 2 位。
+      </div>
+      <div class="form-row">
+        <label>選擇成員</label>
+        <div class="select-wrap">
+          <select id="rep-member" onchange="onRepMemberChange()">
+            <option value="">— 請選擇成員 —</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>實際里程（KM）<span style="color:var(--text-muted);font-weight:400;text-transform:none;font-size:11px"> 精確至小數點後 2 位</span></label>
+        <input type="number" id="rep-km" placeholder="例如：10.25" step="0.01" min="0" oninput="updateKcalPreview()">
+      </div>
+      <div class="kcal-preview" id="kcal-preview" style="display:none">
+        <span>換算卡路里</span>
+        <strong id="kcal-calc">— kcal</strong>
+      </div>
+      <button class="btn btn-primary" onclick="handleReport()">📤 確認回報</button>
+    </div>
+  </div>
+
+  <!-- List Panel -->
+  <div id="panel-list" style="display:none">
+
+    <div class="members-section" id="report-list-section">
+      <div class="section-header">
+        <h3>🏃 已回報里程</h3>
+        <span id="reported-count">0 人</span>
+      </div>
+      <div id="reported-members"></div>
+    </div>
+
+    <div class="members-section" id="reg-list-section">
+      <div class="section-header">
+        <h3>📋 已報名（待回報）</h3>
+        <span id="registered-count">0 人</span>
+      </div>
+      <div id="registered-members"></div>
+    </div>
+
+    <button class="btn btn-export" onclick="exportExcel()">📊 匯出 Excel 報表</button>
+  </div>
+
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="edit-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 id="modal-title">修改資料</h3>
+    <div class="form-row">
+      <label id="modal-label">里程（KM）</label>
+      <input type="number" id="modal-km" step="0.01" min="0">
+    </div>
+    <div class="kcal-preview" id="modal-kcal-preview" style="display:none">
+      <span>換算卡路里</span>
+      <strong id="modal-kcal-calc">— kcal</strong>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-secondary" onclick="closeModal()" style="flex:1">取消</button>
+      <button class="btn btn-primary" onclick="saveModal()" style="flex:1">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ALL_MEMBERS = [
+  '陳弘明','鄭宏洋','鄭伯','佳宜*雞蛋花','議德','傑克','James Liu',
+  '泰淼','楊哲銘','高聖智','臣賢','陳一郎','angle卿','科銘','雷皇正','蔡若瑋'
+];
+
+// Remove duplicate 高聖智 from original list (was listed twice)
+const MEMBERS = [...new Set(ALL_MEMBERS)];
+
+// Data store: { name, regKm, repKm, repKcal, status: 'registered'|'reported' }
+let data = {};
+
+// Load from localStorage if available
+function loadData() {
+  try {
+    const saved = localStorage.getItem('5421_unityday03');
+    if (saved) data = JSON.parse(saved);
+  } catch(e) {}
+}
+
+function saveData() {
+  try {
+    localStorage.setItem('5421_unityday03', JSON.stringify(data));
+  } catch(e) {}
+}
+
+loadData();
+
+// Calorie calculation
+function calcKcal(km) {
+  km = parseFloat(km);
+  if (isNaN(km) || km < 5) return 0;
+  return 350 + (km - 5) * 70;
+}
+
+// Round km per report rules: decimal > 0.11 rounds up to next integer
+function applyRoundingRule(km) {
+  km = Math.round(km * 100) / 100; // ensure 2 decimal
+  const dec = km - Math.floor(km);
+  if (dec > 0.11) return Math.ceil(km);
+  return Math.floor(km);
+}
+
+function getInitials(name) {
+  if (!name) return '?';
+  const clean = name.replace(/[*\s]/g, '');
+  if (/^[A-Za-z]/.test(name)) return name.slice(0,2).toUpperCase();
+  return clean.slice(0, 2);
+}
+
+// Populate dropdowns
+function updateDropdowns() {
+  const regSel = document.getElementById('reg-member');
+  const repSel = document.getElementById('rep-member');
+  const curReg = regSel.value;
+  const curRep = repSel.value;
+
+  regSel.innerHTML = '<option value="">— 請選擇成員 —</option>';
+  repSel.innerHTML = '<option value="">— 請選擇成員 —</option>';
+
+  // Register: show members NOT yet registered
+  // Report: show ALL registered members (can update)
+  MEMBERS.forEach(m => {
+    if (!data[m] || data[m].status === undefined) {
+      const opt = document.createElement('option');
+      opt.value = m; opt.textContent = m;
+      regSel.appendChild(opt);
+    }
+    // Report dropdown: show registered members only
+    if (data[m] && (data[m].status === 'registered' || data[m].status === 'reported')) {
+      const opt = document.createElement('option');
+      opt.value = m; opt.textContent = m + (data[m].status === 'reported' ? ' ✓' : '');
+      repSel.appendChild(opt);
+    }
+  });
+
+  if (curReg) regSel.value = curReg;
+  if (curRep) repSel.value = curRep;
+}
+
+function updateStats() {
+  const registered = Object.values(data).filter(d => d.status === 'registered').length;
+  const reported = Object.values(data).filter(d => d.status === 'reported').length;
+  let totalKcal = 0;
+  Object.values(data).forEach(d => {
+    if (d.status === 'reported' && d.repKcal) totalKcal += d.repKcal;
+  });
+
+  document.getElementById('stat-reg').textContent = registered + reported;
+  document.getElementById('stat-rep').textContent = reported;
+  document.getElementById('stat-kcal').textContent = totalKcal.toFixed(0);
+
+  const pct = Math.min(100, (totalKcal / 5000) * 100);
+  const fill = document.getElementById('progress-fill');
+  fill.style.width = pct + '%';
+  fill.className = 'progress-fill' + (totalKcal >= 5000 ? ' complete' : '');
+  document.getElementById('progress-text').textContent = totalKcal.toFixed(0) + ' / 5000 kcal';
+
+  if (totalKcal >= 5000) {
+    document.getElementById('progress-note').textContent = '🎉 目標達成！恭喜全組完成熱量大罷工！';
+  } else {
+    const rem = (5000 - totalKcal).toFixed(0);
+    document.getElementById('progress-note').textContent = `還需 ${rem} 大卡 · 加油！`;
+  }
+}
+
+function renderLists() {
+  const reportedEl = document.getElementById('reported-members');
+  const registeredEl = document.getElementById('registered-members');
+
+  const reported = MEMBERS.filter(m => data[m] && data[m].status === 'reported');
+  const registered = MEMBERS.filter(m => data[m] && data[m].status === 'registered');
+
+  document.getElementById('reported-count').textContent = reported.length + ' 人';
+  document.getElementById('registered-count').textContent = registered.length + ' 人';
+
+  if (reported.length === 0) {
+    reportedEl.innerHTML = '<div class="empty-state"><div class="icon">🏃</div>尚無回報資料</div>';
+  } else {
+    reportedEl.innerHTML = reported.map((m, i) => {
+      const d = data[m];
+      return `<div class="member-row">
+        <div class="member-avatar reported">${getInitials(m)}</div>
+        <div class="member-info">
+          <div class="member-name">${m}</div>
+          <div class="member-detail">${d.repKm} KM → ${d.repKcal.toFixed(0)} kcal</div>
+        </div>
+        <span class="member-kcal">${d.repKcal.toFixed(0)}</span>
+        <button class="edit-btn" onclick="openEditModal('${m}','reported')">修改</button>
+      </div>`;
+    }).join('');
+  }
+
+  if (registered.length === 0) {
+    registeredEl.innerHTML = '<div class="empty-state"><div class="icon">📋</div>尚無報名（未回報）資料</div>';
+  } else {
+    registeredEl.innerHTML = registered.map(m => {
+      const d = data[m];
+      return `<div class="member-row">
+        <div class="member-avatar registered">${getInitials(m)}</div>
+        <div class="member-info">
+          <div class="member-name">${m}</div>
+          <div class="member-detail">預計 ${d.regKm || '—'} KM</div>
+        </div>
+        <span class="status-badge badge-registered">待回報</span>
+        <button class="edit-btn" onclick="openEditModal('${m}','registered')">修改</button>
+      </div>`;
+    }).join('');
+  }
+}
+
+function refresh() {
+  updateDropdowns();
+  updateStats();
+  renderLists();
+}
+
+// Tab switching
+function switchTab(tab) {
+  ['register','report','list'].forEach(t => {
+    document.getElementById('panel-' + t).style.display = t === tab ? '' : 'none';
+    const el = document.getElementById('tab-' + (t === 'register' ? 'reg' : t === 'report' ? 'rep' : 'list'));
+    if (el) el.classList.toggle('active', t === tab);
+  });
+  if (tab === 'list') renderLists();
+}
+
+// Register
+function handleRegister() {
+  const name = document.getElementById('reg-member').value;
+  const km = document.getElementById('reg-km').value;
+  if (!name) { showToast('請選擇成員'); return; }
+
+  data[name] = {
+    name,
+    regKm: km ? parseFloat(km).toFixed(2) : null,
+    status: 'registered'
+  };
+  saveData();
+  document.getElementById('reg-km').value = '';
+  document.getElementById('reg-member').value = '';
+  refresh();
+  showToast(`${name} 報名成功 ✅`);
+}
+
+// Report
+function onRepMemberChange() {
+  const name = document.getElementById('rep-member').value;
+  if (name && data[name] && data[name].status === 'reported') {
+    document.getElementById('rep-km').value = data[name].repKm;
+    updateKcalPreview();
+  } else {
+    document.getElementById('rep-km').value = '';
+    document.getElementById('kcal-preview').style.display = 'none';
+  }
+}
+
+function updateKcalPreview() {
+  const km = parseFloat(document.getElementById('rep-km').value);
+  const preview = document.getElementById('kcal-preview');
+  if (!isNaN(km) && km > 0) {
+    const rounded = applyRoundingRule(km);
+    const kcal = calcKcal(rounded);
+    document.getElementById('kcal-calc').textContent = `${rounded}K → ${kcal.toFixed(0)} kcal`;
+    preview.style.display = 'flex';
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
+function handleReport() {
+  const name = document.getElementById('rep-member').value;
+  let km = document.getElementById('rep-km').value;
+  if (!name) { showToast('請選擇成員'); return; }
+  if (!km) { showToast('請輸入里程數'); return; }
+
+  km = parseFloat(parseFloat(km).toFixed(2));
+  const roundedKm = applyRoundingRule(km);
+  const kcal = calcKcal(roundedKm);
+
+  if (!data[name]) data[name] = { name };
+  data[name].repKm = km;
+  data[name].repKmRounded = roundedKm;
+  data[name].repKcal = kcal;
+  data[name].status = 'reported';
+  saveData();
+
+  document.getElementById('rep-km').value = '';
+  document.getElementById('rep-member').value = '';
+  document.getElementById('kcal-preview').style.display = 'none';
+  refresh();
+  showToast(`${name} 回報 ${km}K → ${kcal.toFixed(0)} kcal ✅`);
+}
+
+// Edit modal
+let editTarget = null;
+let editMode = null;
+
+function openEditModal(name, mode) {
+  editTarget = name;
+  editMode = mode;
+  const d = data[name];
+  document.getElementById('modal-title').textContent = `修改 ${name} 的資料`;
+
+  if (mode === 'reported') {
+    document.getElementById('modal-label').textContent = '實際里程（KM）— 小數點後 2 位';
+    document.getElementById('modal-km').value = d.repKm || '';
+    document.getElementById('modal-km').step = '0.01';
+    updateModalKcal();
+    document.getElementById('modal-kcal-preview').style.display = 'flex';
+    document.getElementById('modal-km').oninput = updateModalKcal;
+  } else {
+    document.getElementById('modal-label').textContent = '預計里程（KM）';
+    document.getElementById('modal-km').value = d.regKm || '';
+    document.getElementById('modal-km').step = '0.01';
+    document.getElementById('modal-kcal-preview').style.display = 'none';
+    document.getElementById('modal-km').oninput = null;
+  }
+
+  document.getElementById('edit-modal').classList.add('show');
+}
+
+function updateModalKcal() {
+  const km = parseFloat(document.getElementById('modal-km').value);
+  if (!isNaN(km) && km > 0) {
+    const rounded = applyRoundingRule(km);
+    const kcal = calcKcal(rounded);
+    document.getElementById('modal-kcal-calc').textContent = `${rounded}K → ${kcal.toFixed(0)} kcal`;
+  }
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('edit-modal')) {
+    document.getElementById('edit-modal').classList.remove('show');
+  }
+}
+
+function saveModal() {
+  if (!editTarget) return;
+  let km = parseFloat(document.getElementById('modal-km').value);
+  if (isNaN(km)) { showToast('請輸入有效里程'); return; }
+
+  if (editMode === 'reported') {
+    km = parseFloat(km.toFixed(2));
+    const rounded = applyRoundingRule(km);
+    const kcal = calcKcal(rounded);
+    data[editTarget].repKm = km;
+    data[editTarget].repKmRounded = rounded;
+    data[editTarget].repKcal = kcal;
+    data[editTarget].status = 'reported';
+    showToast(`已更新 ${editTarget}：${km}K → ${kcal.toFixed(0)} kcal`);
+  } else {
+    data[editTarget].regKm = km.toFixed(2);
+    showToast(`已更新 ${editTarget} 預計里程`);
+  }
+
+  saveData();
+  document.getElementById('edit-modal').classList.remove('show');
+  refresh();
+}
+
+// Export Excel
+function exportExcel() {
+  const wb = XLSX.utils.book_new();
+
+  // Sheet 1: Summary
+  const today = new Date().toLocaleDateString('zh-TW');
+  let totalKcal = 0;
+  const summaryRows = [
+    ['5421 Enjoy組 團結日#03 熱量大罷工'],
+    [`匯出時間：${today}`],
+    ['目標：全組累計 5000 大卡'],
+    [],
+    ['姓名', '狀態', '報名預計里程(K)', '實際里程(K)', '進位後里程(K)', '換算卡路里(kcal)', '備註']
+  ];
+
+  MEMBERS.forEach(m => {
+    const d = data[m];
+    if (!d) {
+      summaryRows.push([m, '未報名', '', '', '', '', '']);
+    } else if (d.status === 'reported') {
+      totalKcal += d.repKcal || 0;
+      summaryRows.push([
+        m, '已回報',
+        d.regKm || '',
+        d.repKm || '',
+        d.repKmRounded || '',
+        d.repKcal ? d.repKcal.toFixed(0) : '',
+        d.repKm < 5 ? '未達5K門檻' : ''
+      ]);
+    } else {
+      summaryRows.push([m, '已報名待回報', d.regKm || '', '', '', '', '']);
+    }
+  });
+
+  summaryRows.push([]);
+  summaryRows.push(['總計卡路里', '', '', '', '', totalKcal.toFixed(0), totalKcal >= 5000 ? '🎉 達標！' : `差 ${(5000-totalKcal).toFixed(0)} kcal`]);
+  summaryRows.push(['目標達成', '', '', '', '', totalKcal >= 5000 ? '是' : '否', '']);
+
+  const ws = XLSX.utils.aoa_to_sheet(summaryRows);
+  ws['!cols'] = [20, 12, 14, 14, 14, 16, 20].map(w => ({ wch: w }));
+  XLSX.utils.book_append_sheet(wb, ws, '統計總覽');
+
+  // Sheet 2: Reported only sorted by kcal
+  const repRows = [
+    ['排名', '姓名', '實際里程(K)', '進位後里程(K)', '卡路里(kcal)']
+  ];
+  const reported = MEMBERS
+    .filter(m => data[m] && data[m].status === 'reported')
+    .sort((a,b) => (data[b].repKcal||0) - (data[a].repKcal||0));
+
+  reported.forEach((m, i) => {
+    const d = data[m];
+    repRows.push([i+1, m, d.repKm, d.repKmRounded, d.repKcal ? d.repKcal.toFixed(0) : 0]);
+  });
+
+  const ws2 = XLSX.utils.aoa_to_sheet(repRows);
+  ws2['!cols'] = [6, 16, 14, 14, 14].map(w => ({ wch: w }));
+  XLSX.utils.book_append_sheet(wb, ws2, '回報排行');
+
+  XLSX.writeFile(wb, `5421_Enjoy_團結日03_${today.replace(/\//g,'-')}.xlsx`);
+  showToast('📊 Excel 已匯出！');
+}
+
+// Toast
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Init
+refresh();
+</script>
+</body>
+</html>
